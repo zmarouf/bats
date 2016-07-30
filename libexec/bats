@@ -21,6 +21,7 @@ help() {
   echo "  -h, --help     Display this help message"
   echo "  -p, --pretty   Show results in pretty format (default for terminals)"
   echo "  -t, --tap      Show results in TAP format"
+  echo "  -d             Durations for TAP output with YAML format"
   echo "  -o <filename>  Write test results to <filename>"
   echo "  -r             Release output from tests to STDOUT"
   echo "  -v, --version  Display the version number"
@@ -66,7 +67,7 @@ unset pass_the_opts pretty
 [ -t 0 ] && [ -t 1 ] && pretty="1"
 [ -n "$CI" ] && pretty=""
 
-while getopts ":hvctpro:-:" opt; do
+while getopts ":hvctdpro:-:" opt; do
   if [[ $opt == '-' ]]; then
 	case $OPTARG in
 	  'pretty')
@@ -104,6 +105,9 @@ while getopts ":hvctpro:-:" opt; do
     t)
       pretty=""
       ;;
+    d)
+      pass_the_opts="$pass_the_opts -d"
+    ;;
     p)
       pretty="1"
       ;;

@@ -6,7 +6,7 @@ source $BATS_LIBEXEC/common_functions.shrc
 unset pass_the_opts
 count_only_flag=""
 extended_syntax_flag=""
-while getopts ":o:cxr" opt; do
+while getopts ":o:cdxr" opt; do
   case $opt in
     c)
        count_only_flag=1
@@ -18,6 +18,9 @@ while getopts ":o:cxr" opt; do
     o)
       export BATS_OUTPUT_FILE=$OPTARG
       pass_the_opts="$pass_the_opts -o $BATS_OUTPUT_FILE"
+      ;;
+    d)
+      pass_the_opts="$pass_the_opts -d"
       ;;
     r)
       pass_the_opts="$pass_the_opts -r"
