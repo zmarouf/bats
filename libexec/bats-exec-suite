@@ -6,7 +6,7 @@ source $BATS_LIBEXEC/common_functions.shrc
 unset pass_the_opts
 count_only_flag=""
 extended_syntax_flag=""
-while getopts ":o:cdxr" opt; do
+while getopts ":o:cdxrT:" opt; do
   case $opt in
     c)
        count_only_flag=1
@@ -24,6 +24,10 @@ while getopts ":o:cdxr" opt; do
       ;;
     r)
       pass_the_opts="$pass_the_opts -r"
+      ;;
+    T)
+      BATS_TIMEOUT=$OPTARG
+      pass_the_opts="$pass_the_opts -T $BATS_TIMEOUT"
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2

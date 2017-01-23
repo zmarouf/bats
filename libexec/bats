@@ -8,7 +8,7 @@ version() {
 
 usage() {
   version
-  echo "Usage: bats [-c] [-p | -t] [-r] [-o <filename>] <test> [<test> ...]"
+  echo "Usage: bats [-c] [-p | -t] [-r] [-T <timeout> ] [-d] [-o <filename>] <test> [<test> ...]"
 }
 
 help() {
@@ -21,6 +21,8 @@ help() {
   echo "  -h, --help     Display this help message"
   echo "  -p, --pretty   Show results in pretty format (default for terminals)"
   echo "  -t, --tap      Show results in TAP format"
+  echo "  -T, --Timeout "
+  echo "      <timeout>  Timeout and fail a test if it runs longer than set variable"
   echo "  -d             Durations for TAP output with YAML format"
   echo "  -o <filename>  Write test results to <filename>"
   echo "  -r             Release output from tests to STDOUT"
@@ -67,7 +69,7 @@ unset pass_the_opts pretty
 [ -t 0 ] && [ -t 1 ] && pretty="1"
 [ -n "$CI" ] && pretty=""
 
-while getopts ":hvctdpro:-:" opt; do
+while getopts ":hvctT:dpro:-:" opt; do
   if [[ $opt == '-' ]]; then
 	case $OPTARG in
 	  'pretty')
@@ -78,6 +80,8 @@ while getopts ":hvctdpro:-:" opt; do
 	     opt=h;;
 	  'version')
 	     opt=v;;
+    'Timeout')
+       opt=T;;
 	  *)
 	    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
 	 	echo "Unknown option --${OPTARG}" >&2
@@ -105,9 +109,13 @@ while getopts ":hvctdpro:-:" opt; do
     t)
       pretty=""
       ;;
+    T)
+      BATS_TIMEOUT=$OPTARG
+      pass_the_opts="$pass_the_opts -T $BATS_TIMEOUT"
+      ;;
     d)
       pass_the_opts="$pass_the_opts -d"
-    ;;
+      ;;
     p)
       pretty="1"
       ;;

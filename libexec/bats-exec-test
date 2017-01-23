@@ -7,7 +7,7 @@ source common_functions.shrc
 
 BATS_COUNT_ONLY=""
 BATS_EXTENDED_SYNTAX=""
-while getopts ":o:cdxr" opt; do
+while getopts ":o:cdxrT:" opt; do
   case $opt in
     c)
       BATS_COUNT_ONLY=1
@@ -23,6 +23,9 @@ while getopts ":o:cdxr" opt; do
       ;;
     r)
       export BATS_RELEASE_TESTOUTPUT=1
+      ;;
+    T)
+      export BATS_TIMEOUT=$OPTARG
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -68,6 +71,10 @@ load() {
   source "${filename}"
 }
 
+# timeout from here: http://stackoverflow.com/questions/3504945/timeout-command-on-mac-os-x
+# in case 'timeout' command does not exist on the system
+function timeout() { perl -e 'alarm shift; exec @ARGV' "$@"; }
+
 run() {
   local e E T oldIFS
   [[ ! "$-" =~ e ]] || e=1
@@ -76,14 +83,18 @@ run() {
   set +e
   set +E
   set +T
+  bats_timeout=""
+  if [[ -n $BATS_TIMEOUT ]]; then
+    bats_timeout="timeout $BATS_TIMEOUT" # Supplied in bats call on command line or can be set in test block
+  fi
   if [[ -n $BATS_RELEASE_TESTOUTPUT ]]; then
     local TMPFILE=$(createTempFile)
-    "$@" > >(tee $TMPFILE) 2>&1
+    $bats_timeout "$@" > >(tee $TMPFILE) 2>&1
     status="$?"
     output=$(cat $TMPFILE)
     rm -f $TMPFILE
   else
-    output="$("$@" 2>&1)"
+    output="$($bats_timeout "$@" 2>&1)"
     status="$?"
   fi
   oldIFS=$IFS
