@@ -404,3 +404,48 @@ EOF
   [ "${lines[13]:0:17}" =  '    duration_ms: ' ]
   [ "${lines[14]}"      =  '  ...' ]
 }
+
+@test "tests with timeout and fail" {
+  run bats -T 10s $FIXTURE_ROOT/timeout_and_fail.bats
+  [ "$status" -ne 0 ]
+}
+
+@test "tests with timeout and pass" {
+  run bats -T 10s $FIXTURE_ROOT/timeout_and_pass.bats
+  [ "$status" -eq 0 ]
+}
+
+@test "tests with timeout passing and failing" {
+  run bats -T 10s $FIXTURE_ROOT/timeout_pass_and_fail.bats
+  [ "$status" -ne 0 ]
+
+  [ "${lines[0]}" = "1..4" ]
+  [ "${lines[1]}" = "not ok 1 timeout fail 1" ]
+  [ "${lines[4]}" = "ok 2 timeout pass 1" ]
+  [ "${lines[5]}" = "not ok 3 timeout fail 2" ]
+  [ "${lines[8]}" = "ok 4 timeout pass 2" ]
+}
+
+@test "tests with timeout and skips" {
+  run bats -T 10s $FIXTURE_ROOT/timeout_with_skip.bats
+  [ $status -eq 0 ]
+  [ "${lines[1]}" = "ok 1 timeout with skip # skip skip this test" ]
+}
+
+@test "tests with timeout and durations" {
+  run bats -d -T 10s $FIXTURE_ROOT/timeout_and_fail.bats
+  [ $status -ne 0 ]
+  [ "${lines[1]}"       =  'not ok 1 timeout and fail' ]
+  [ "${lines[2]:0:15}"      =  '# (in test file' ]
+  [ "${lines[4]}"       =  '  ---' ]
+  [ "${lines[5]:0:17}"  =  '    duration_ms: ' ]
+}
+
+@test "tests with overriding supplied timeout" {
+  run bats -d -T 10s $FIXTURE_ROOT/timeout_override.bats
+  [ $status -ne 0 ]
+  [ "${lines[1]}"       =  'not ok 1 timeout override' ]
+  [ "${lines[2]:0:15}"      =  '# (in test file' ]
+  [ "${lines[4]}"       =  '  ---' ]
+  [ "${lines[5]:0:18}"  =  '    duration_ms: 5' ]
+}
