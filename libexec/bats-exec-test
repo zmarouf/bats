@@ -73,7 +73,7 @@ load() {
 
 # timeout from here: http://stackoverflow.com/questions/3504945/timeout-command-on-mac-os-x
 # in case 'timeout' command does not exist on the system
-if ! $(which timeout) ; then  function timeout() { perl -e 'alarm shift; exec @ARGV' "$@"; }; fi
+if ! $(which timeout &> /dev/null) ; then  function timeout() { perl -e 'alarm shift; exec @ARGV' "$@"; }; fi
 
 run() {
   local e E T oldIFS
