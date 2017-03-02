@@ -61,6 +61,51 @@ You can force TAP output from a terminal by invoking Bats with the
     ok 1 addition using bc
     ok 2 addition using dc
 
+Additionally, using the -d parameter, you can time your tests and output the test durations in a common TAP extension format: YAML-ish.  Use this in conjuction with the [Jenkins TAP Plugin](https://wiki.jenkins-ci.org/display/JENKINS/TAP+Plugin) to display your test times!
+
+    $ bats --tap -d addition.bats
+    1..2
+    ok 1 addition using bc
+      ---
+        duration_ms: 21
+      ...
+    ok 2 addition using dc
+      ---
+        duration_ms: 22
+      ...
+
+As stated previously you can redirect the output to a file and it
+will be in TAP format, but you can specify to write the output to 
+a file using the '-o' option which will be in pretty format.
+
+    $ bats -o addition.tap addition.bats
+    $ cat addition.tap
+
+     ✓ addition using bc
+     ✓ addition using dc
+
+    2 tests, 0 failures
+
+You may also tell it to do the same in TAP format using --tap parameter.  
+Finally, if output has been redirected using -o then you may also tell
+bats to release output from tests and commands run in tests on STDOUT.
+For instance, if you have a test file like:
+
+```bats
+@test "echo something" {
+  echo something
+  [ 0 -eq 0 ]
+}
+```
+
+Then you would get this:
+
+    $ bats --tap -r -o echo.tap echo.bats
+    something
+    $ cat echo.tap 
+    1..1
+    ok 1 echo something
+
 ### Test suites
 
 You can invoke the `bats` interpreter with multiple test file
